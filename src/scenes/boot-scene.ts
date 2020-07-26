@@ -1,4 +1,4 @@
-import { getGameWidth, getGameHeight } from '../helpers';
+import { getGameWidth, getGameHeight, DEBUG } from '../helpers';
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -21,19 +21,13 @@ export class BootScene extends Phaser.Scene {
     const progressBarHeight = 100;
     const progressBarWidth = 400;
 
-    const progressBarContainer = this.add.rectangle(
-      halfWidth,
-      halfHeight,
-      progressBarWidth,
-      progressBarHeight,
-      0x000000,
-    );
+    const progressBarContainer = this.add.rectangle(halfWidth, halfHeight, progressBarWidth, progressBarHeight, 0x000000);
     const progressBar = this.add.rectangle(
       halfWidth + 20 - progressBarContainer.width * 0.5,
       halfHeight,
       10,
       progressBarHeight - 20,
-      0x888888,
+      0x888888
     );
 
     const loadingText = this.add.text(halfWidth - 75, halfHeight - 100, 'Loading...').setFontSize(24);
@@ -58,7 +52,11 @@ export class BootScene extends Phaser.Scene {
       progressBar.destroy();
       progressBarContainer.destroy();
 
-      this.scene.start('MainMenu');
+      if (DEBUG) {
+        this.scene.start('Game');
+      } else {
+        this.scene.start('MainMenu');
+      }
     });
 
     this.loadAssets();
