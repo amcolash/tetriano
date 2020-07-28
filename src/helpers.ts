@@ -1,5 +1,4 @@
 import * as Phaser from 'phaser';
-import { BlockSize } from './entities/blocks/block';
 
 export const DEBUG = true;
 export const DEBUG_GRAPHICS = true;
