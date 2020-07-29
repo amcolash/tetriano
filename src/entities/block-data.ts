@@ -11,7 +11,7 @@ export const L: BlockData = {
     [0, 1, 1],
   ],
   dims: 3,
-  color: 0x00ff00,
+  color: 0xef8201,
 };
 
 export const J: BlockData = {
@@ -21,7 +21,7 @@ export const J: BlockData = {
     [1, 1, 0],
   ],
   dims: 3,
-  color: 0x00ff00,
+  color: 0x0100f1,
 };
 
 export const O: BlockData = {
@@ -30,7 +30,7 @@ export const O: BlockData = {
     [1, 1],
   ],
   dims: 2,
-  color: 0x00ff00,
+  color: 0xf8e608,
 };
 
 export const T: BlockData = {
@@ -40,7 +40,7 @@ export const T: BlockData = {
     [0, 1, 0],
   ],
   dims: 3,
-  color: 0x00ff00,
+  color: 0xa001f1,
 };
 
 export const S: BlockData = {
@@ -50,7 +50,7 @@ export const S: BlockData = {
     [0, 0, 0],
   ],
   dims: 3,
-  color: 0x00ff00,
+  color: 0x02f102,
 };
 
 export const Z: BlockData = {
@@ -60,7 +60,7 @@ export const Z: BlockData = {
     [0, 0, 0],
   ],
   dims: 3,
-  color: 0x00ff00,
+  color: 0xf00001,
 };
 
 export const I: BlockData = {
@@ -71,5 +71,7 @@ export const I: BlockData = {
     [0, 0, 0, 0],
   ],
   dims: 4,
-  color: 0x00ff00,
+  color: 0x01f1f2,
 };
+
+export const Blocks: BlockData[] = [L, J, O, T, S, Z, I];

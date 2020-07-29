@@ -1,16 +1,16 @@
 import { BlockData } from './block-data';
-import { numCols, numRows } from '../scenes/grid-scene';
-
-export const BlockSize = 16;
+import { blockSize } from '../helpers';
+import { GridScene } from '../scenes/grid-scene';
 
 const dropSpeed = 1000;
 const rotateSpeed = 150;
-const moveSpeed = 75;
+const moveSpeed = 125;
 
 export class Block extends Phaser.GameObjects.Graphics {
   private dropTimer: number = dropSpeed;
   private rotateTimer: number = rotateSpeed;
   private moveTimer: number = moveSpeed;
+
   private blockData: BlockData;
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -31,19 +31,41 @@ export class Block extends Phaser.GameObjects.Graphics {
   private drawBlocks(): void {
     this.clear();
 
-    this.fillStyle(0x00ff00);
+    this.fillStyle(this.blockData.color);
     this.lineStyle(1, 0x777777);
     this.blockData.shape.forEach((row, y) => {
       row.forEach((col, x) => {
-        if (col !== 0) this.fillRect(x * BlockSize, y * BlockSize, BlockSize, BlockSize);
-        else this.strokeRect(x * BlockSize, y * BlockSize, BlockSize, BlockSize);
+        if (col !== 0) this.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+        else this.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
       });
     });
   }
 
+  private positionBlocked(x: number, y: number, shape: number[][] = this.blockData.shape): boolean {
+    const gridScene = this.scene as GridScene;
+    const blocks = gridScene.blocks;
+
+    let blocked = false;
+    shape.forEach((row, rowIndex) => {
+      row.forEach((col, colIndex) => {
+        // If we are out of bounds, we are blocked
+        const inBounds = blocks[y + rowIndex] !== undefined && blocks[y + rowIndex][x + colIndex] !== undefined;
+
+        // Ignore empty blocks even if they are outside the array bounds
+        if (!inBounds && col === 0) return;
+
+        // If the current block is filled and the grid at the place is filled, this spot is blocked
+        if (!inBounds || (col !== 0 && blocks[y + rowIndex][x + colIndex] !== 0)) blocked = true;
+      });
+    });
+
+    return blocked;
+  }
+
   private moveHoriz(dir: number): void {
-    const newPos = this.x + dir * BlockSize;
-    if (newPos >= 0 && newPos + this.blockData.dims * BlockSize <= numCols * BlockSize) this.setX(newPos);
+    const newPos = this.x + dir * blockSize;
+
+    if (!this.positionBlocked(newPos / blockSize, this.y / blockSize)) this.setX(newPos);
   }
 
   private rotate(): void {
@@ -62,10 +84,10 @@ export class Block extends Phaser.GameObjects.Graphics {
       }
     }
 
-    // TODO: Check intersections w/ grid
-    this.blockData.shape = matrix;
-
-    this.drawBlocks();
+    if (!this.positionBlocked(this.x / blockSize, this.y / blockSize, matrix)) {
+      this.blockData.shape = matrix;
+      this.drawBlocks();
+    }
   }
 
   // TODO: Check intersections w/ grid
@@ -84,8 +106,14 @@ export class Block extends Phaser.GameObjects.Graphics {
     }
 
     this.dropTimer -= delta;
-    if (this.dropTimer <= 0 && this.y + this.blockData.dims * BlockSize < numRows * BlockSize) {
-      this.setY(this.y + BlockSize);
+    if (this.cursorKeys.down.isDown) this.dropTimer -= delta * 3;
+
+    if (this.dropTimer <= 0) {
+      if (this.positionBlocked(this.x / blockSize, (this.y + blockSize) / blockSize)) {
+        // TODO set it in place
+      } else {
+        this.setY(this.y + blockSize);
+      }
       this.dropTimer = dropSpeed;
     }
   }
