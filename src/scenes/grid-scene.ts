@@ -15,6 +15,7 @@ const gridColor = 0x222222;
 
 export class GridScene extends Phaser.Scene {
   public blocks: number[][];
+  private blocksDirty: boolean = true;
   private graphics: Phaser.GameObjects.Graphics;
 
   constructor() {
@@ -23,10 +24,9 @@ export class GridScene extends Phaser.Scene {
     this.blocks = new Array(numRows).fill(0);
     this.blocks.forEach((row, i) => (this.blocks[i] = new Array(numCols).fill(0)));
 
-    // this.blocks[0][6] = 0xff0000;
-    // this.blocks[0][7] = 0xff0000;
-    // this.blocks[0][8] = 0xff0000;
-    // this.blocks[0][9] = 0xff0000;
+    for (let x = 0; x < 9; x++) {
+      this.blocks[39][x] = 0x123456;
+    }
   }
 
   private initCamera(): void {
@@ -40,7 +40,10 @@ export class GridScene extends Phaser.Scene {
     this.cameras.main.setViewport(x, y, width + buffer, height + buffer);
   }
 
-  private draw(): void {
+  private drawBlocks(): void {
+    if (!this.blocksDirty) return;
+
+    this.graphics.clear();
     this.graphics.lineStyle(2, gridColor);
     this.graphics.strokeRect(0, 0, width, height);
 
@@ -52,6 +55,29 @@ export class GridScene extends Phaser.Scene {
         }
       });
     });
+
+    this.blocksDirty = false;
+  }
+
+  public updateBlocks(): void {
+    this.blocks.forEach((row, y) => {
+      let full = true;
+      row.forEach((col, x) => {
+        if (col === 0) full = false;
+      });
+
+      if (full) {
+        this.blocks.splice(y, 1);
+        this.blocks.unshift(Array(numCols).fill(0));
+      }
+    });
+
+    this.blocksDirty = true;
+  }
+
+  public dropBlock(): void {
+    const blockType = Phaser.Math.RND.pick(Blocks);
+    new Block(this, snapToGrid(width / 2 - (blockType.dims / 2) * blockSize), blockSize, blockType);
   }
 
   public create(): void {
@@ -62,9 +88,11 @@ export class GridScene extends Phaser.Scene {
     this.graphics = this.add.graphics();
     this.add.grid(width / 2, height / 2, width, height, blockSize, blockSize, 0, 0, gridColor);
 
-    this.draw();
+    this.drawBlocks();
+    this.dropBlock();
+  }
 
-    const blockType = Phaser.Math.RND.pick(Blocks);
-    new Block(this, snapToGrid(width / 2 - (blockType.dims / 2) * blockSize), 0, blockType);
+  public update(time: number, delta: number): void {
+    this.drawBlocks();
   }
 }

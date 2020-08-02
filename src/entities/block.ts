@@ -62,6 +62,26 @@ export class Block extends Phaser.GameObjects.Graphics {
     return blocked;
   }
 
+  private dropBlock(): void {
+    const gridScene = this.scene as GridScene;
+    const blocks = gridScene.blocks;
+
+    const x = this.x / blockSize;
+    const y = this.y / blockSize;
+    const color = this.blockData.color;
+
+    this.blockData.shape.forEach((row, rowIndex) => {
+      row.forEach((col, colIndex) => {
+        if (col !== 0) blocks[y + rowIndex][x + colIndex] = color;
+      });
+    });
+
+    gridScene.updateBlocks();
+    gridScene.dropBlock();
+
+    this.destroy();
+  }
+
   private moveHoriz(dir: number): void {
     const newPos = this.x + dir * blockSize;
 
@@ -106,11 +126,11 @@ export class Block extends Phaser.GameObjects.Graphics {
     }
 
     this.dropTimer -= delta;
-    if (this.cursorKeys.down.isDown) this.dropTimer -= delta * 3;
+    if (this.cursorKeys.down.isDown) this.dropTimer -= delta * 8;
 
     if (this.dropTimer <= 0) {
-      if (this.positionBlocked(this.x / blockSize, (this.y + blockSize) / blockSize)) {
-        // TODO set it in place
+      if (this.positionBlocked(this.x / blockSize, this.y / blockSize + 1)) {
+        this.dropBlock();
       } else {
         this.setY(this.y + blockSize);
       }

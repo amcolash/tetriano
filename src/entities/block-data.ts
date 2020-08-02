@@ -2,6 +2,7 @@ export interface BlockData {
   shape: number[][];
   dims: number;
   color: number;
+  id: string;
 }
 
 export const L: BlockData = {
@@ -12,6 +13,7 @@ export const L: BlockData = {
   ],
   dims: 3,
   color: 0xef8201,
+  id: 'L',
 };
 
 export const J: BlockData = {
@@ -22,6 +24,7 @@ export const J: BlockData = {
   ],
   dims: 3,
   color: 0x0100f1,
+  id: 'J',
 };
 
 export const O: BlockData = {
@@ -31,6 +34,7 @@ export const O: BlockData = {
   ],
   dims: 2,
   color: 0xf8e608,
+  id: 'O',
 };
 
 export const T: BlockData = {
@@ -41,6 +45,7 @@ export const T: BlockData = {
   ],
   dims: 3,
   color: 0xa001f1,
+  id: 'T',
 };
 
 export const S: BlockData = {
@@ -51,6 +56,7 @@ export const S: BlockData = {
   ],
   dims: 3,
   color: 0x02f102,
+  id: 'S',
 };
 
 export const Z: BlockData = {
@@ -61,6 +67,7 @@ export const Z: BlockData = {
   ],
   dims: 3,
   color: 0xf00001,
+  id: 'Z',
 };
 
 export const I: BlockData = {
@@ -72,6 +79,7 @@ export const I: BlockData = {
   ],
   dims: 4,
   color: 0x01f1f2,
+  id: 'I',
 };
 
 export const Blocks: BlockData[] = [L, J, O, T, S, Z, I];
