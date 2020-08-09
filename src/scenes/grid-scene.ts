@@ -82,6 +82,11 @@ export class GridScene extends Phaser.Scene {
     new Block(this, snapToGrid(width / 2 - (blockType.dims / 2) * blockSize), blockSize, blockType);
   }
 
+  public gameOver(): void {
+    this.add.rectangle(width / 2, height / 2, 220, 50, 0x222222).setOrigin(0.5, 0.5);
+    this.add.text(width / 2, height / 2, 'Game Over!', { fontSize: '32px' }).setOrigin(0.5);
+  }
+
   public create(): void {
     this.initCamera();
     this.cursorKeys = this.input.keyboard.createCursorKeys();

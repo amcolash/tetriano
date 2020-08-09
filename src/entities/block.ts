@@ -22,6 +22,11 @@ export class Block extends Phaser.GameObjects.Graphics {
     // There are better ways, but ehhh it is a small amount of data and this is the simplest
     this.blockData = JSON.parse(JSON.stringify(blockData));
 
+    if (this.positionBlocked(this.x / blockSize, this.y / blockSize)) {
+      this.destroyBlock(true);
+      this.gridScene.gameOver();
+    }
+
     this.cursorKeys = this.gridScene.cursorKeys;
     this.cursorKeys.space.once('down', () => this.dropBlock());
 
@@ -64,21 +69,23 @@ export class Block extends Phaser.GameObjects.Graphics {
     return blocked;
   }
 
-  private destroyBlock(): void {
-    const blocks = this.gridScene.blocks;
+  private destroyBlock(gameOver?: boolean): void {
+    if (!gameOver) {
+      const blocks = this.gridScene.blocks;
 
-    const x = this.x / blockSize;
-    const y = this.y / blockSize;
-    const color = this.blockData.color;
+      const x = this.x / blockSize;
+      const y = this.y / blockSize;
+      const color = this.blockData.color;
 
-    this.blockData.shape.forEach((row, rowIndex) => {
-      row.forEach((col, colIndex) => {
-        if (col !== 0) blocks[y + rowIndex][x + colIndex] = color;
+      this.blockData.shape.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+          if (col !== 0) blocks[y + rowIndex][x + colIndex] = color;
+        });
       });
-    });
 
-    this.gridScene.updateBlocks();
-    this.gridScene.spawnBlock();
+      this.gridScene.updateBlocks();
+      this.gridScene.spawnBlock();
+    }
 
     this.destroy();
   }
