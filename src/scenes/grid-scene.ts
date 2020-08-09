@@ -15,6 +15,8 @@ const gridColor = 0x222222;
 
 export class GridScene extends Phaser.Scene {
   public blocks: number[][];
+  public cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+
   private blocksDirty: boolean = true;
   private graphics: Phaser.GameObjects.Graphics;
 
@@ -75,13 +77,14 @@ export class GridScene extends Phaser.Scene {
     this.blocksDirty = true;
   }
 
-  public dropBlock(): void {
+  public spawnBlock(): void {
     const blockType = Phaser.Math.RND.pick(Blocks);
     new Block(this, snapToGrid(width / 2 - (blockType.dims / 2) * blockSize), blockSize, blockType);
   }
 
   public create(): void {
     this.initCamera();
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
 
     if (DEBUG_GRAPHICS) this.add.rectangle(-100, -100, 2000, 2000, 0x0000ff, 0.25);
 
@@ -89,7 +92,7 @@ export class GridScene extends Phaser.Scene {
     this.add.grid(width / 2, height / 2, width, height, blockSize, blockSize, 0, 0, gridColor);
 
     this.drawBlocks();
-    this.dropBlock();
+    this.spawnBlock();
   }
 
   public update(time: number, delta: number): void {

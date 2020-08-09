@@ -13,14 +13,17 @@ export class Block extends Phaser.GameObjects.Graphics {
 
   private blockData: BlockData;
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+  private gridScene: GridScene;
 
   constructor(scene: Phaser.Scene, x: number, y: number, blockData: BlockData) {
     super(scene, { x, y });
+    this.gridScene = this.scene as GridScene;
 
     // There are better ways, but ehhh it is a small amount of data and this is the simplest
     this.blockData = JSON.parse(JSON.stringify(blockData));
 
-    this.cursorKeys = scene.input.keyboard.createCursorKeys();
+    this.cursorKeys = this.gridScene.cursorKeys;
+    this.cursorKeys.space.once('down', () => this.dropBlock());
 
     scene.sys.displayList.add(this);
     scene.sys.updateList.add(this);
@@ -42,8 +45,7 @@ export class Block extends Phaser.GameObjects.Graphics {
   }
 
   private positionBlocked(x: number, y: number, shape: number[][] = this.blockData.shape): boolean {
-    const gridScene = this.scene as GridScene;
-    const blocks = gridScene.blocks;
+    const blocks = this.gridScene.blocks;
 
     let blocked = false;
     shape.forEach((row, rowIndex) => {
@@ -62,9 +64,8 @@ export class Block extends Phaser.GameObjects.Graphics {
     return blocked;
   }
 
-  private dropBlock(): void {
-    const gridScene = this.scene as GridScene;
-    const blocks = gridScene.blocks;
+  private destroyBlock(): void {
+    const blocks = this.gridScene.blocks;
 
     const x = this.x / blockSize;
     const y = this.y / blockSize;
@@ -76,10 +77,20 @@ export class Block extends Phaser.GameObjects.Graphics {
       });
     });
 
-    gridScene.updateBlocks();
-    gridScene.dropBlock();
+    this.gridScene.updateBlocks();
+    this.gridScene.spawnBlock();
 
     this.destroy();
+  }
+
+  private dropBlock(): void {
+    // if (this.moveTimer > 0) return;
+
+    while (!this.positionBlocked(this.x / blockSize, this.y / blockSize + 1)) {
+      this.setY(this.y + blockSize);
+    }
+
+    this.destroyBlock();
   }
 
   private moveHoriz(dir: number): void {
@@ -110,13 +121,12 @@ export class Block extends Phaser.GameObjects.Graphics {
     }
   }
 
-  // TODO: Check intersections w/ grid
   public preUpdate(time: number, delta: number): void {
     this.moveTimer -= delta;
     if (this.moveTimer <= 0) {
+      this.moveTimer = moveSpeed;
       if (this.cursorKeys.left.isDown) this.moveHoriz(-1);
       if (this.cursorKeys.right.isDown) this.moveHoriz(1);
-      this.moveTimer = moveSpeed;
     }
 
     this.rotateTimer -= delta;
@@ -130,7 +140,7 @@ export class Block extends Phaser.GameObjects.Graphics {
 
     if (this.dropTimer <= 0) {
       if (this.positionBlocked(this.x / blockSize, this.y / blockSize + 1)) {
-        this.dropBlock();
+        this.destroyBlock();
       } else {
         this.setY(this.y + blockSize);
       }
